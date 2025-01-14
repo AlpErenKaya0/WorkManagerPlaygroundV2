@@ -4,6 +4,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,10 +22,23 @@ private val counter = Counter()
         }
         return super.onStartCommand(intent, flags, startId)
     }
+
+    private fun notification(counterValue:Int){
+        val counterNotification = NotificationCompat
+            .Builder(this,"counter_channel")
+            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setContentTitle("Counter")
+            .setContentText(counterValue.toString())
+            .setStyle(NotificationCompat.BigTextStyle())
+            .build()
+        startForeground(1,counterNotification)
+    }
+
     private fun start(){
         CoroutineScope(Dispatchers.Default).launch{
             counter.start().collect{counterValue ->
                 Log.d("CounterService",counterValue.toString())
+                notification(counterValue)
             }
         }
     }
